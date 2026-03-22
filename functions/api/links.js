@@ -27,8 +27,8 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const auth = context.request.headers.get("Authorization");
-    const PASS = context.env.VAULT_PASSWORD || "Leilajane25";
-    if (auth !== `Bearer ${PASS}`) {
+    const PASS = context.env.VAULT_PASSWORD;
+    if (!PASS || auth !== `Bearer ${PASS}`) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...CORS },
