@@ -104,9 +104,11 @@
 							if (!links || links.length === 0) return;
 							links.forEach(function (link, i) {
 								var style = STYLES[i % STYLES.length];
+								var picStr = '0' + ((i % 6) + 1);
 								var article = document.createElement('article');
 								article.className = style;
 								article.innerHTML =
+									'<span class="image"><img src="images/pic' + picStr + '.jpg" alt="" /></span>' +
 									'<a href="' + escapeAttr(link.url) + '" target="_blank" rel="noopener noreferrer">' +
 										'<h2>' + escapeHtml(link.title) + '</h2>' +
 										(link.description
