@@ -48,8 +48,8 @@
 					<div id="main">
 						<div class="inner">
 							<header>
-								<h1>I’m Ben, an Early Years teacher in Thailand.</h1>
-								<p>I work with 3–4 year olds using a play-based, child-led approach. I’m also a school leader focused on coaching and developing practice through tools like Planning in the Moment and Tales Toolkit. Below are some of the digital projects and apps I’ve built to support learning.</p>
+								<h1>I'm Ben, an Early Years teacher in Thailand.</h1>
+								<p>I work with 3–4 year olds using a play-based, child-led approach. I'm also a school leader focused on coaching and developing practice through tools like Planning in the Moment and Tales Toolkit. Below are some of the digital projects and apps I've built to support learning.</p>
 							</header>
 							<section class="tiles">
 								<article class="style1">
@@ -119,6 +119,8 @@
 									</a>
 								</article>
 							</section>
+							<!-- Dynamic tiles loaded from D1 -->
+							<section id="dynamic-tiles" class="tiles" style="margin-top:0;"></section>
 						</div>
 					</div>
 
@@ -134,6 +136,14 @@
 									<li><a href="mailto:hello@benwiddowson.com" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
 								</ul>
 							</section>
+							<section>
+								<!-- Buy Me a Coffee — update USERNAME to your buymeacoffee.com handle -->
+								<a href="https://www.buymeacoffee.com/benwiddowson" target="_blank" rel="noopener noreferrer">
+									<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+										alt="Buy Me A Coffee"
+										style="height:45px;width:163px;" />
+								</a>
+							</section>
 							<ul class="copyright">
 								<li>&copy; Ben Widdowson. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
 							</ul>
@@ -148,6 +158,43 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+
+		<!-- Dynamic tiles from D1 -->
+			<script>
+				(function () {
+					var STYLES = ['style1','style2','style3','style4','style5','style6'];
+					var container = document.getElementById('dynamic-tiles');
+
+					fetch('/api/links')
+						.then(function (res) { return res.ok ? res.json() : Promise.reject(res.status); })
+						.then(function (links) {
+							if (!links || links.length === 0) return;
+							links.forEach(function (link, i) {
+								var style = STYLES[i % STYLES.length];
+								var article = document.createElement('article');
+								article.className = style;
+								article.innerHTML =
+									'<a href="' + escapeAttr(link.url) + '" target="_blank" rel="noopener noreferrer">' +
+										'<h2>' + escapeHtml(link.title) + '</h2>' +
+										(link.description
+											? '<div class="content"><p>' + escapeHtml(link.description) + '</p></div>'
+											: '') +
+									'</a>';
+								container.appendChild(article);
+							});
+						})
+						.catch(function () { /* silently skip if API unavailable */ });
+
+					function escapeHtml(str) {
+						return String(str)
+							.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+							.replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+					}
+					function escapeAttr(str) {
+						return String(str).replace(/"/g,'&quot;');
+					}
+				})();
+			</script>
 
 	</body>
 </html>
