@@ -10,6 +10,15 @@ export async function onRequestOptions() {
 
 export async function onRequestPatch(context) {
   try {
+    const auth = context.request.headers.get("Authorization");
+    const PASS = context.env.VAULT_PASSWORD || "Leilajane25";
+    if (auth !== `Bearer ${PASS}`) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
     const id = context.params.id;
     const { title, url, description } = await context.request.json();
     if (!title || !url) {
@@ -36,6 +45,15 @@ export async function onRequestPatch(context) {
 
 export async function onRequestDelete(context) {
   try {
+    const auth = context.request.headers.get("Authorization");
+    const PASS = context.env.VAULT_PASSWORD || "Leilajane25";
+    if (auth !== `Bearer ${PASS}`) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
     const id = context.params.id;
     await context.env.DB.prepare("DELETE FROM links WHERE id = ?")
       .bind(id)

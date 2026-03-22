@@ -161,7 +161,13 @@
 						<p>Add links here and they'll appear as live squares on the main site.</p>
 					</header>
 
-					<div class="vault-layout">
+					<div id="login-screen" style="display: flex; flex-direction: column; align-items: center; max-width: 400px; margin: 4em auto; padding: 2em; background: rgba(0,0,0,0.03); border-radius: 8px;">
+						<h2>Enter Password</h2>
+						<input type="password" id="vault-pwd" placeholder="Password" style="margin-bottom: 1em;" />
+						<button id="login-btn" class="primary">Unlock Vault</button>
+					</div>
+
+					<div class="vault-layout" id="vault-content" style="display: none;">
 
 						<!-- Left: form + list -->
 						<div class="vault-main">
@@ -268,6 +274,43 @@
 			var statusMsg   = document.getElementById('status-msg');
 			var list        = document.getElementById('links-list');
 
+			var loginScreen = document.getElementById('login-screen');
+			var vaultContent = document.getElementById('vault-content');
+			var pwdInput    = document.getElementById('vault-pwd');
+			var loginBtn    = document.getElementById('login-btn');
+
+			// ── auth ──────────────────────────────────────────────────────────
+
+			var savedPwd = localStorage.getItem('vault_pwd');
+			if (savedPwd) {
+				unlockVault(savedPwd);
+			}
+
+			loginBtn.addEventListener('click', function() {
+				var p = pwdInput.value.trim();
+				if (p) {
+					localStorage.setItem('vault_pwd', p);
+					unlockVault(p);
+				}
+			});
+
+			pwdInput.addEventListener('keypress', function(e) {
+				if (e.key === 'Enter') loginBtn.click();
+			});
+
+			function unlockVault(pwd) {
+				window.VAULT_PWD = pwd;
+				loginScreen.style.display = 'none';
+				vaultContent.style.display = 'flex';
+				loadLinks();
+			}
+
+			function handleAuthError() {
+				alert("Incorrect password!");
+				localStorage.removeItem('vault_pwd');
+				location.reload();
+			}
+
 			// ── helpers ──────────────────────────────────────────────────────
 
 			function escapeHtml(str) {
@@ -354,10 +397,14 @@
 				submitBtn.disabled = true;
 				fetch(url, {
 					method:  method,
-					headers: { 'Content-Type': 'application/json' },
+					headers: { 
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer ' + window.VAULT_PWD
+					},
 					body:    JSON.stringify(payload),
 				})
 				.then(function (res) {
+					if (res.status === 401) return handleAuthError();
 					if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || res.status); });
 					return res.json();
 				})
@@ -386,8 +433,12 @@
 
 				if (e.target.classList.contains('btn-delete')) {
 					if (!confirm('Delete this link?')) return;
-					fetch(API + '/' + id, { method: 'DELETE' })
+					fetch(API + '/' + id, { 
+						method: 'DELETE',
+						headers: { 'Authorization': 'Bearer ' + window.VAULT_PWD }
+					})
 						.then(function (res) {
+							if (res.status === 401) return handleAuthError();
 							if (!res.ok) throw new Error(res.status);
 							loadLinks();
 							showStatus('Link deleted.', 'success');
@@ -411,8 +462,7 @@
 			});
 
 			// ── init ──────────────────────────────────────────────────────────
-
-			loadLinks();
+			// (moved loadLinks to unlockVault)
 		})();
 		</script>
 

@@ -26,6 +26,15 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   try {
+    const auth = context.request.headers.get("Authorization");
+    const PASS = context.env.VAULT_PASSWORD || "Leilajane25";
+    if (auth !== `Bearer ${PASS}`) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
     const { title, url, description } = await context.request.json();
     if (!title || !url) {
       return new Response(JSON.stringify({ error: "title and url are required" }), {
