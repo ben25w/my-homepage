@@ -1,0 +1,418 @@
+<!DOCTYPE HTML>
+<!--
+	Vault — Ben Widdowson
+	Built on the Phantom theme by HTML5 UP
+-->
+<html>
+	<head>
+		<title>Vault | Ben Widdowson</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+		<style>
+			/* Vault-specific overrides */
+			#main > .inner { max-width: none; }
+
+			.vault-layout {
+				display: flex;
+				gap: 2.5em;
+				align-items: flex-start;
+			}
+			.vault-main {
+				flex: 1 1 0;
+				min-width: 0;
+			}
+			.vault-sidebar {
+				flex: 0 0 340px;
+				width: 340px;
+			}
+			@media screen and (max-width: 800px) {
+				.vault-layout { flex-direction: column; }
+				.vault-sidebar { flex: none; width: 100%; }
+			}
+
+			/* Raindrop panel */
+			.raindrop-panel {
+				position: sticky;
+				top: 2em;
+			}
+			.raindrop-panel h3 {
+				font-size: 0.9em;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				color: #999;
+				margin-bottom: 0.75em;
+			}
+			.raindrop-panel iframe {
+				width: 100%;
+				height: 560px;
+				border: 1px solid #e0e0e0;
+				border-radius: 4px;
+			}
+
+			/* Links list */
+			#links-list { list-style: none; padding: 0; margin: 0; }
+			#links-list li {
+				display: flex;
+				align-items: center;
+				gap: 1em;
+				padding: 0.85em 0;
+				border-bottom: 1px solid #e8e8e8;
+			}
+			#links-list li:last-child { border-bottom: none; }
+			.link-info { flex: 1 1 0; min-width: 0; }
+			.link-info strong {
+				display: block;
+				font-size: 1em;
+				color: #333;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.link-info span {
+				font-size: 0.82em;
+				color: #999;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: block;
+			}
+			.link-actions { display: flex; gap: 0.5em; flex-shrink: 0; }
+			.link-actions button {
+				padding: 0.35em 0.8em;
+				font-size: 0.8em;
+				cursor: pointer;
+				border-radius: 4px;
+				border: 1px solid #ccc;
+				background: #fff;
+				color: #555;
+				transition: background 0.15s;
+			}
+			.link-actions button:hover { background: #f0f0f0; }
+			.link-actions .btn-delete { border-color: #e88; color: #c44; }
+			.link-actions .btn-delete:hover { background: #fee; }
+
+			/* Status message */
+			#status-msg {
+				display: none;
+				margin: 0.5em 0 1em;
+				padding: 0.6em 1em;
+				border-radius: 4px;
+				font-size: 0.9em;
+			}
+			#status-msg.success { background: #e6f9ee; color: #1a7a40; border: 1px solid #a8dfc0; }
+			#status-msg.error   { background: #fde8e8; color: #b52b2b; border: 1px solid #f5b8b8; }
+
+			/* Edit mode indicator */
+			#form-title-label { font-weight: 600; }
+			#cancel-edit {
+				display: none;
+				margin-left: 1em;
+				font-size: 0.85em;
+				cursor: pointer;
+				color: #888;
+				background: none;
+				border: none;
+				padding: 0;
+			}
+			#cancel-edit:hover { color: #444; }
+
+			.empty-state {
+				color: #aaa;
+				font-style: italic;
+				font-size: 0.9em;
+				padding: 1em 0;
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+		<div id="wrapper">
+
+			<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="../index.html" class="logo">
+						<span class="title">Ben Widdowson</span>
+					</a>
+					<nav>
+						<ul>
+							<li><a href="#menu">Menu</a></li>
+						</ul>
+					</nav>
+				</div>
+			</header>
+
+			<!-- Menu -->
+			<nav id="menu">
+				<h2>Menu</h2>
+				<ul>
+					<li><a href="../index.html">Home</a></li>
+					<li><a href="index.html">Vault</a></li>
+				</ul>
+			</nav>
+
+			<!-- Main -->
+			<div id="main">
+				<div class="inner">
+					<header>
+						<h1>Vault</h1>
+						<p>Add links here and they'll appear as live squares on the main site.</p>
+					</header>
+
+					<div class="vault-layout">
+
+						<!-- Left: form + list -->
+						<div class="vault-main">
+
+							<!-- Add / Edit form -->
+							<section>
+								<h2 id="form-heading">
+									<span id="form-title-label">Add a link</span>
+									<button id="cancel-edit" title="Cancel edit">&#x2715; Cancel</button>
+								</h2>
+
+								<div id="status-msg"></div>
+
+								<form id="link-form">
+									<input type="hidden" id="edit-id" value="" />
+									<div class="row gtr-uniform">
+										<div class="col-12">
+											<label for="f-title">Title</label>
+											<input type="text" id="f-title" name="title" placeholder="e.g. My Portfolio" required />
+										</div>
+										<div class="col-12">
+											<label for="f-url">URL</label>
+											<input type="url" id="f-url" name="url" placeholder="https://example.com" required />
+										</div>
+										<div class="col-12">
+											<label for="f-description">Description <em style="font-weight:300;font-size:0.85em;">(optional)</em></label>
+											<input type="text" id="f-description" name="description" placeholder="Short subtitle shown on the tile" />
+										</div>
+										<div class="col-12">
+											<button type="submit" id="submit-btn" class="primary">Save link</button>
+										</div>
+									</div>
+								</form>
+							</section>
+
+							<hr />
+
+							<!-- Existing links list -->
+							<section>
+								<h2>Saved links</h2>
+								<ul id="links-list">
+									<li class="empty-state">Loading…</li>
+								</ul>
+							</section>
+
+						</div><!-- .vault-main -->
+
+						<!-- Right: Raindrop reference panel -->
+						<div class="vault-sidebar">
+							<div class="raindrop-panel">
+								<h3>Raindrop reference</h3>
+								<!--
+									Replace the src below with your Raindrop embed URL.
+									Public collection embed format:
+									  https://raindrop.io/YOUR_USERNAME/YOUR_COLLECTION/embed
+									Or open Raindrop → collection → Share → Embed.
+								-->
+								<iframe
+									src="https://raindrop.io/benwiddowson/links/embed"
+									frameborder="0"
+									title="Raindrop bookmarks"
+									loading="lazy"
+								></iframe>
+							</div>
+						</div><!-- .vault-sidebar -->
+
+					</div><!-- .vault-layout -->
+				</div>
+			</div><!-- #main -->
+
+			<!-- Footer -->
+			<footer id="footer">
+				<div class="inner">
+					<ul class="copyright">
+						<li>&copy; Ben Widdowson. All rights reserved</li>
+					</ul>
+				</div>
+			</footer>
+
+		</div><!-- #wrapper -->
+
+		<!-- Scripts -->
+		<script src="../assets/js/jquery.min.js"></script>
+		<script src="../assets/js/browser.min.js"></script>
+		<script src="../assets/js/breakpoints.min.js"></script>
+		<script src="../assets/js/util.js"></script>
+		<script src="../assets/js/main.js"></script>
+
+		<!-- Vault logic -->
+		<script>
+		(function () {
+			var API = '/api/links';
+			var editingId = null;
+
+			var form        = document.getElementById('link-form');
+			var fTitle      = document.getElementById('f-title');
+			var fUrl        = document.getElementById('f-url');
+			var fDesc       = document.getElementById('f-description');
+			var submitBtn   = document.getElementById('submit-btn');
+			var cancelBtn   = document.getElementById('cancel-edit');
+			var titleLabel  = document.getElementById('form-title-label');
+			var statusMsg   = document.getElementById('status-msg');
+			var list        = document.getElementById('links-list');
+
+			// ── helpers ──────────────────────────────────────────────────────
+
+			function escapeHtml(str) {
+				return String(str)
+					.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+					.replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+			}
+
+			function showStatus(msg, type) {
+				statusMsg.textContent = msg;
+				statusMsg.className = type; // 'success' | 'error'
+				statusMsg.style.display = 'block';
+				setTimeout(function () { statusMsg.style.display = 'none'; }, 4000);
+			}
+
+			function setEditMode(link) {
+				editingId        = link.id;
+				fTitle.value     = link.title;
+				fUrl.value       = link.url;
+				fDesc.value      = link.description || '';
+				titleLabel.textContent = 'Edit link';
+				submitBtn.textContent  = 'Update link';
+				cancelBtn.style.display = 'inline';
+				fTitle.focus();
+			}
+
+			function clearForm() {
+				editingId = null;
+				form.reset();
+				titleLabel.textContent = 'Add a link';
+				submitBtn.textContent  = 'Save link';
+				cancelBtn.style.display = 'none';
+			}
+
+			// ── render list ───────────────────────────────────────────────────
+
+			function renderList(links) {
+				list.innerHTML = '';
+				if (!links || links.length === 0) {
+					list.innerHTML = '<li class="empty-state">No links yet — add one above.</li>';
+					return;
+				}
+				links.forEach(function (link) {
+					var li = document.createElement('li');
+					li.dataset.id = link.id;
+					li.innerHTML =
+						'<div class="link-info">' +
+							'<strong>' + escapeHtml(link.title) + '</strong>' +
+							'<span>' + escapeHtml(link.url) + '</span>' +
+							(link.description ? '<span>' + escapeHtml(link.description) + '</span>' : '') +
+						'</div>' +
+						'<div class="link-actions">' +
+							'<button class="btn-edit" data-id="' + link.id + '">Edit</button>' +
+							'<button class="btn-delete" data-id="' + link.id + '">Delete</button>' +
+						'</div>';
+					list.appendChild(li);
+				});
+			}
+
+			// ── fetch list ────────────────────────────────────────────────────
+
+			function loadLinks() {
+				fetch(API)
+					.then(function (res) { return res.json(); })
+					.then(renderList)
+					.catch(function () {
+						list.innerHTML = '<li class="empty-state">Could not load links.</li>';
+					});
+			}
+
+			// ── form submit (add or update) ───────────────────────────────────
+
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+				var payload = {
+					title:       fTitle.value.trim(),
+					url:         fUrl.value.trim(),
+					description: fDesc.value.trim(),
+				};
+
+				var method = editingId ? 'PATCH' : 'POST';
+				var url    = editingId ? API + '/' + editingId : API;
+
+				submitBtn.disabled = true;
+				fetch(url, {
+					method:  method,
+					headers: { 'Content-Type': 'application/json' },
+					body:    JSON.stringify(payload),
+				})
+				.then(function (res) {
+					if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || res.status); });
+					return res.json();
+				})
+				.then(function () {
+					showStatus(editingId ? 'Link updated.' : 'Link saved — it will appear on the main site now.', 'success');
+					clearForm();
+					loadLinks();
+				})
+				.catch(function (err) {
+					showStatus('Error: ' + err.message, 'error');
+				})
+				.finally(function () {
+					submitBtn.disabled = false;
+				});
+			});
+
+			// ── cancel edit ───────────────────────────────────────────────────
+
+			cancelBtn.addEventListener('click', clearForm);
+
+			// ── edit / delete via event delegation ───────────────────────────
+
+			list.addEventListener('click', function (e) {
+				var id = e.target.dataset.id;
+				if (!id) return;
+
+				if (e.target.classList.contains('btn-delete')) {
+					if (!confirm('Delete this link?')) return;
+					fetch(API + '/' + id, { method: 'DELETE' })
+						.then(function (res) {
+							if (!res.ok) throw new Error(res.status);
+							loadLinks();
+							showStatus('Link deleted.', 'success');
+						})
+						.catch(function (err) {
+							showStatus('Delete failed: ' + err.message, 'error');
+						});
+				}
+
+				if (e.target.classList.contains('btn-edit')) {
+					var li   = e.target.closest('li');
+					var info = li.querySelector('.link-info');
+					var spans = info.querySelectorAll('span');
+					setEditMode({
+						id:          id,
+						title:       info.querySelector('strong').textContent,
+						url:         spans[0].textContent,
+						description: spans[1] ? spans[1].textContent : '',
+					});
+				}
+			});
+
+			// ── init ──────────────────────────────────────────────────────────
+
+			loadLinks();
+		})();
+		</script>
+
+	</body>
+</html>
