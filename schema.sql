@@ -1,5 +1,5 @@
--- D1 schema for benwiddowson-links database
--- Run with: wrangler d1 execute benwiddowson-links --file=schema.sql
+-- D1 schema for website-homepage database
+-- Run with: wrangler d1 execute website-homepage --file=schema.sql
 
 CREATE TABLE IF NOT EXISTS links (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
