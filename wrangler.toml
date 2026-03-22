@@ -4,5 +4,5 @@ pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
-database_name = "benwiddowson-links"
-database_id = "YOUR_DATABASE_ID_HERE"
+database_name = "website-homepage"
+database_id = "2db671d8-55d2-4958-9f9b-1f017b8571f4"
